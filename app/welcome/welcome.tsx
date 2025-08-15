@@ -1,89 +1,287 @@
-import logoDark from "./logo-dark.svg";
-import logoLight from "./logo-light.svg";
+import React, { useState, useEffect } from "react";
+
+type PlayerInfo = {
+  name: string;
+  position: string;
+  team: string;
+};
+
+const initialPlayers: PlayerInfo[] = [
+  { name: "Joe Burrow", position: "QB", team: "CIN" },
+  { name: "Ja'marr Chase", position: "WR", team: "CIN" },
+  { name: "Tee Higgins", position: "WR", team: "CIN" },
+  { name: "Mike Gesicki", position: "TE", team: "CIN" },
+  { name: "Chase Brown", position: "RB", team: "CIN" },
+  { name: "Josh Allen", position: "QB", team: "BUF" },
+  { name: "Khalil Shakir", position: "WR", team: "BUF" },
+  { name: "Keon Coleman", position: "WR", team: "BUF" },
+  { name: "Dalton Kincaid", position: "TE", team: "BUF" },
+  { name: "James Cook", position: "RB", team: "BUF" },
+  { name: "Lamar Jackson", position: "QB", team: "BAL" },
+  { name: "Zay Flowers", position: "WR", team: "BAL" },
+  { name: "Rashod Batemen", position: "WR", team: "BAL" },
+  { name: "Mark Andrews", position: "TE", team: "BAL" },
+  { name: "Derrick Henry", position: "RB", team: "BAL" },
+  { name: "Patrick Mahomes", position: "QB", team: "KC" },
+  { name: "Rashee Rice", position: "WR", team: "KC" },
+  { name: "Xavier Worthy", position: "WR", team: "KC" },
+  { name: "Travis Kelce", position: "TE", team: "KC" },
+  { name: "Isiah Pacheco", position: "RB", team: "KC" },
+];
+
+const users: string[] = ["Josh", "Nate", "Sam", "Ethan"]
+
+type Team = {
+  userName: string;
+  players: PlayerInfo[];
+};
+
+const initialUserTeams: Team[] = [
+  {userName: users[0], players: []},
+  {userName: users[1], players: []},
+  {userName: users[2], players: []},
+  {userName: users[3], players: []}
+]
+
+export function UserTeam(draftedTeam: Team){
+  return(
+    <div>
+      <h1>{draftedTeam.userName}</h1>
+      <div className='draft-board'>
+        {draftedTeam.players.map((player) => (
+          <div className='draftable-player-div'> 
+            <h1>{player.name}</h1>
+            <span>{player.position}</span><span> - </span><span>{player.team}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// export function DraftedPlayer({playerInformation, onRemove}: { playerInformation: PlayerInfo; onRemove: (name: string) => void; }) {
+export function DraftedPlayer({playerInformation}: { playerInformation: PlayerInfo }) {
+  function handleClick() {
+    console.log('drafted', playerInformation.name)
+    // onRemove(playerInformation.name);
+  }
+
+  return(
+    <div className={`draftable-player-div ${playerInformation.position.toLowerCase()}`} onClick={handleClick}> 
+      <h1>{playerInformation.name}</h1>
+      <span>{playerInformation.position}</span><span> - </span><span>{playerInformation.team}</span>
+    </div>
+  )
+}
 
 export function Welcome() {
+  const [selectedUser, setSelectedUser] = useState('current');
+  const [players, setPlayers] = React.useState(initialPlayers);
+  const [userTeams, setUserTeams] = useState<Team[]>(initialUserTeams);
+  const { turnIndex, nextTurn } = useSnakeDraftTurns(users.length);
+
+  function draftPlayer(draftedPlayer: PlayerInfo) {
+    console.log(users[turnIndex], 'drafted', draftedPlayer.name);
+    // check if they can draft the player
+    setPlayers(players.filter(player => player.name !== draftedPlayer.name));
+    console.log(draftedPlayer)
+
+    setUserTeams(prevUserTeams => {
+      // Find index of the current team
+      const teamIndex = prevUserTeams.findIndex(team => team.userName === users[turnIndex]);
+      if (teamIndex === -1) return prevUserTeams; // team not found
+
+      // Copy the team and add drafted player
+      const updatedTeam = {
+        ...prevUserTeams[teamIndex],
+        players: [...prevUserTeams[teamIndex].players, draftedPlayer],
+      };
+
+      // Copy the entire userTeams array replacing the updated team
+      const newUserTeams = [...prevUserTeams];
+      newUserTeams[teamIndex] = updatedTeam;
+
+      return newUserTeams;
+    })
+    
+    nextTurn();
+  }
+
+
   return (
     <main className="flex items-center justify-center pt-16 pb-4">
       <div className="flex-1 flex flex-col items-center gap-16 min-h-0">
         <header className="flex flex-col items-center gap-9">
-          <div className="w-[500px] max-w-[100vw] p-4">
-            <img
-              src={logoLight}
-              alt="React Router"
-              className="block w-full dark:hidden"
-            />
-            <img
-              src={logoDark}
-              alt="React Router"
-              className="hidden w-full dark:block"
-            />
-          </div>
+          <h1>Draft Page</h1>
         </header>
-        <div className="max-w-[300px] w-full space-y-6 px-4">
-          <nav className="rounded-3xl border border-gray-200 p-6 dark:border-gray-700 space-y-4">
-            <p className="leading-6 text-gray-700 dark:text-gray-200 text-center">
-              What&apos;s next?
-            </p>
-            <ul>
-              {resources.map(({ href, text, icon }) => (
-                <li key={href}>
-                  <a
-                    className="group flex items-center gap-3 self-stretch p-3 leading-normal text-blue-700 hover:underline dark:text-blue-500"
-                    href={href}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    {icon}
-                    {text}
-                  </a>
+        <div>
+          <div className="test">
+            <p style={{width: '86px'}}></p>
+            <p style={{width: '154px', textAlign: 'center'}}>Round One</p>
+            <p style={{width: '154px', textAlign: 'center'}}>Round Two</p>
+            <p style={{width: '154px', textAlign: 'center'}}>Round Three</p>
+            <p style={{width: '154px', textAlign: 'center'}}>Round Four</p>
+            <p style={{width: '154px', textAlign: 'center'}}>Round Five</p>
+            <p style={{width: '154px', textAlign: 'center'}}>Round Six</p>
+            <p style={{width: '154px', textAlign: 'center'}}>Round Seven</p>
+            <p style={{width: '154px', textAlign: 'center'}}>Round Eight</p>
+            <p style={{width: '154px', textAlign: 'center'}}>Round Nine</p>
+            <p style={{width: '154px', textAlign: 'center'}}>Round Ten</p>
+          </div>
+          {userTeams.map((team) => (
+            <div key={team.userName} className='drafted-row'>
+              <p style={{width: '80px', marginRight: '6px'}}>{team.userName}</p>
+              <ul className='test'>
+                {team.players.length > 0 ? (
+                  team.players.map((player) => (
+                    <DraftedPlayer playerInformation={player} key={player.name} />
+                    // <li key={player.name}>
+                    //   {player.name} - {player.position} ({player.team})
+                    // </li>
+                  ))
+                ) : (
+                  <li>No players assigned</li>
+                )}
+              </ul>
+            </div>
+          ))}
+        </div>
+        <div className='bottom-feed'>
+          <div className='draftable-players'>
+            <ul className="custom-list">
+              {players.map((player) => (
+                <li key={player.name} onClick={() => draftPlayer(player)}>
+                  {player.name} - {player.position} ({player.team})
                 </li>
               ))}
             </ul>
-          </nav>
+          </div>
+          <div className='drafted-players'>
+            <div key={userTeams[turnIndex].userName}>
+              <div style={{ display: 'flex', flexDirection: 'row', width: '430px', justifyContent: 'space-between' }}>
+                <p onClick={() => setSelectedUser('current')} style={{ cursor: 'pointer', padding: '0 8px',
+                  border: selectedUser === 'current' ? '1px solid black' : 'none'}}>Current</p>
+                <p onClick={() => setSelectedUser('playerone')}style={{ cursor: 'pointer', padding: '0 8px',
+                  border: selectedUser === 'playerone' ? '1px solid black' : 'none'}}>{users[0]}</p>
+                <p onClick={() => setSelectedUser('playertwo')}style={{ cursor: 'pointer', padding: '0 8px',
+                  border: selectedUser === 'playertwo' ? '1px solid black' : 'none'}}>{users[1]}</p>
+                <p onClick={() => setSelectedUser('playerthree')}style={{ cursor: 'pointer', padding: '0 8px',
+                  border: selectedUser === 'playerthree' ? '1px solid black' : 'none'}}>{users[2]}</p>
+                <p onClick={() => setSelectedUser('playerfour')}style={{ cursor: 'pointer', padding: '0 8px',
+                  border: selectedUser === 'playerfour' ? '1px solid black' : 'none'}}>{users[3]}</p>
+              </div>
+              {(() => {
+                if (selectedUser == 'current') {
+                  return (
+                    <div>
+                       <DraftedTeam playerTeam={userTeams[turnIndex]} />
+                    </div>
+                  )
+                } else if (selectedUser == 'playerone') {
+                  return (
+                  <div><DraftedTeam playerTeam={userTeams[0]} /></div>
+                )
+                }else if (selectedUser == 'playertwo') {
+                  return (
+                    <div><DraftedTeam playerTeam={userTeams[1]} /></div>
+                  )
+                } else if (selectedUser == 'playerthree') {
+                  return (
+                    <div><DraftedTeam playerTeam={userTeams[2]} /></div>
+                  )
+                } else if (selectedUser == 'playerfour') {
+                  return (
+                    <div><DraftedTeam playerTeam={userTeams[3]} /></div>
+                  )
+                } else {
+                  return (
+                    <div><DraftedTeam playerTeam={userTeams[turnIndex]} /></div>
+                  )
+                }
+              })()}
+            </div>
+          </div>
         </div>
+        
       </div>
     </main>
   );
 }
+export function DraftedTeam({ playerTeam }: { playerTeam: Team }) {
+  return (
+    <div>
+      <div className='test' style={{height: '64px', display: 'flex', alignItems: 'center'}}>
+        <p style={{width: '26px', marginRight: '6px'}}>QB</p>
+        {playerTeam.players.filter(player => player.position === "QB").map((player) => (
+          <DraftedPlayer playerInformation={player} key={player.name} />
+        ))}
+      </div>
+      <div className='test' style={{height: '64px', display: 'flex', alignItems: 'center'}}>
+        <p style={{width: '26px', marginRight: '6px'}}>WR</p>
+        {playerTeam.players.filter(player => player.position === "WR").map((player) => (
+          <DraftedPlayer playerInformation={player} key={player.name} />
+        ))}
+      </div>
+      <div className='test' style={{height: '64px', display: 'flex', alignItems: 'center'}}>
+        <p style={{width: '26px', marginRight: '6px'}}>RB</p>
+        {playerTeam.players.filter(player => player.position === "RB").map((player) => (
+          <DraftedPlayer playerInformation={player} key={player.name} />
+        ))}
+      </div>
+      <div className='test' style={{height: '64px', display: 'flex', alignItems: 'center'}}>
+        <p style={{width: '26px', marginRight: '6px'}}>TE</p>
+        {playerTeam.players.filter(player => player.position === "TE").map((player) => (
+          <DraftedPlayer playerInformation={player} key={player.name} />
+        ))}
+      </div>
+    </div>
+  )
+}
 
-const resources = [
-  {
-    href: "https://reactrouter.com/docs",
-    text: "React Router Docs",
-    icon: (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="20"
-        viewBox="0 0 20 20"
-        fill="none"
-        className="stroke-gray-600 group-hover:stroke-current dark:stroke-gray-300"
-      >
-        <path
-          d="M9.99981 10.0751V9.99992M17.4688 17.4688C15.889 19.0485 11.2645 16.9853 7.13958 12.8604C3.01467 8.73546 0.951405 4.11091 2.53116 2.53116C4.11091 0.951405 8.73546 3.01467 12.8604 7.13958C16.9853 11.2645 19.0485 15.889 17.4688 17.4688ZM2.53132 17.4688C0.951566 15.8891 3.01483 11.2645 7.13974 7.13963C11.2647 3.01471 15.8892 0.951453 17.469 2.53121C19.0487 4.11096 16.9854 8.73551 12.8605 12.8604C8.73562 16.9853 4.11107 19.0486 2.53132 17.4688Z"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-        />
-      </svg>
-    ),
-  },
-  {
-    href: "https://rmx.as/discord",
-    text: "Join Discord",
-    icon: (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="20"
-        viewBox="0 0 24 20"
-        fill="none"
-        className="stroke-gray-600 group-hover:stroke-current dark:stroke-gray-300"
-      >
-        <path
-          d="M15.0686 1.25995L14.5477 1.17423L14.2913 1.63578C14.1754 1.84439 14.0545 2.08275 13.9422 2.31963C12.6461 2.16488 11.3406 2.16505 10.0445 2.32014C9.92822 2.08178 9.80478 1.84975 9.67412 1.62413L9.41449 1.17584L8.90333 1.25995C7.33547 1.51794 5.80717 1.99419 4.37748 2.66939L4.19 2.75793L4.07461 2.93019C1.23864 7.16437 0.46302 11.3053 0.838165 15.3924L0.868838 15.7266L1.13844 15.9264C2.81818 17.1714 4.68053 18.1233 6.68582 18.719L7.18892 18.8684L7.50166 18.4469C7.96179 17.8268 8.36504 17.1824 8.709 16.4944L8.71099 16.4904C10.8645 17.0471 13.128 17.0485 15.2821 16.4947C15.6261 17.1826 16.0293 17.8269 16.4892 18.4469L16.805 18.8725L17.3116 18.717C19.3056 18.105 21.1876 17.1751 22.8559 15.9238L23.1224 15.724L23.1528 15.3923C23.5873 10.6524 22.3579 6.53306 19.8947 2.90714L19.7759 2.73227L19.5833 2.64518C18.1437 1.99439 16.6386 1.51826 15.0686 1.25995ZM16.6074 10.7755L16.6074 10.7756C16.5934 11.6409 16.0212 12.1444 15.4783 12.1444C14.9297 12.1444 14.3493 11.6173 14.3493 10.7877C14.3493 9.94885 14.9378 9.41192 15.4783 9.41192C16.0471 9.41192 16.6209 9.93851 16.6074 10.7755ZM8.49373 12.1444C7.94513 12.1444 7.36471 11.6173 7.36471 10.7877C7.36471 9.94885 7.95323 9.41192 8.49373 9.41192C9.06038 9.41192 9.63892 9.93712 9.6417 10.7815C9.62517 11.6239 9.05462 12.1444 8.49373 12.1444Z"
-          strokeWidth="1.5"
-        />
-      </svg>
-    ),
-  },
-];
+
+// Helpers 
+function useSnakeDraftTurns(usersCount: number) {
+  const [turnIndex, setTurnIndex] = useState(0);
+  const [direction, setDirection] = useState(1); // 1 = forward, -1 = backward
+  const [repeatCount, setRepeatCount] = useState(0);
+
+  function nextTurn() {
+    setTurnIndex(prevIndex => {
+      let nextIndex = prevIndex + direction;
+      let nextRepeat = repeatCount;
+
+      // Handle bounds and snake behavior
+      if (nextIndex >= usersCount) {
+        // At the end: stay two times then reverse
+        if (repeatCount < 1) {
+          nextRepeat++;
+          setRepeatCount(nextRepeat);
+          nextIndex = prevIndex; // stay on last user
+        } else {
+          // After repeating twice, reverse direction
+          setDirection(-1);
+          setRepeatCount(0);
+          nextIndex = prevIndex - 1; // start going backward
+        }
+      } else if (nextIndex < 0) {
+        // At the start: stay two times then reverse
+        if (repeatCount < 1) {
+          nextRepeat++;
+          setRepeatCount(nextRepeat);
+          nextIndex = prevIndex; // stay on first user
+        } else {
+          setDirection(1);
+          setRepeatCount(0);
+          nextIndex = prevIndex + 1; // start going forward
+        }
+      } else {
+        // Normal advance, reset repeat count
+        setRepeatCount(0);
+      }
+
+      return nextIndex;
+    });
+  }
+
+  return { turnIndex, nextTurn };
+}

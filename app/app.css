@@ -13,3 +13,90 @@ body {
     color-scheme: dark;
   }
 }
+
+
+.draftable-player-div {
+  width: 150px;
+  background-color: #121212;
+  padding: 5px;
+  border-radius: 5px;
+  margin: 3px 2px;
+}
+
+.qb {
+  background-color: red;
+}
+
+.wr {
+  background-color: blue;
+}
+
+.rb {
+  background-color: green;
+}
+
+.te {
+  background-color: orange;
+}
+
+.draftable-player-div h1 {
+  color: white;
+}
+
+.draftable-player-div span {
+  color: white;
+}
+
+.draft-board {
+  display: flex;
+  flex-direction: row;
+  width: 1300px;
+  flex-wrap: wrap;
+}
+
+.drafted-row {
+  display: flex;
+  flex-direction: row;
+  height: 64px;
+}
+
+.bottom-feed {
+  display: flex;
+  flex-direction: row;
+}
+
+.draftable-players {
+  display: flex;
+  flex-direction: column;
+  width: 300px;
+  height: 270px;
+  overflow-y: auto;
+}
+
+ul.custom-list {
+  list-style-type: none;
+  padding-left: 20px;
+}
+
+ul.custom-list li::before {
+  content: "+ ";
+  color: black;
+  font-size: x-large;
+}
+
+.drafted-players {
+  display: flex;
+  flex-direction: row;
+  width: 500px;
+  margin-left: 20px;
+}
+
+.drafted-players .user-team {
+  display: flex;
+  flex-direction: row;
+}
+
+.test {
+  display: flex;
+  flex-direction: row;
+}
